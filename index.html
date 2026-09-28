@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mudiwa Doro | Computer Science Student and Software Developer</title>
+<meta name="description" content="Portfolio of Mudiwa Doro, BSc Honours Computer Science student at Midlands State University, Zimbabwe. Software for informal trade and smallholder agriculture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --band: #f5f7fa;
+  --ink: #16202e;
+  --muted: #5a6577;
+  --rule: #dfe4ec;
+  --accent: #1d4f91;
+  --accent-ink: #ffffff;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "Public Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1520; --band: #141d2b; --ink: #e7ecf4; --muted: #a2adc0;
+    --rule: #263246; --accent: #7fa8e6; --accent-ink: #0e1520;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1520; --band: #141d2b; --ink: #e7ecf4; --muted: #a2adc0;
+  --rule: #263246; --accent: #7fa8e6; --accent-ink: #0e1520;
+}
+html { scroll-padding-top: calc(4.5rem + env(safe-area-inset-top, 0px)); scroll-behavior: smooth; }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 1.0625rem; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* Header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); border-bottom: 1px solid var(--rule); }
+.top .wrap { display: flex; justify-content: space-between; align-items: center; height: 3.75rem; gap: 1rem; }
+.brand { font-family: var(--serif); font-weight: 700; font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+.top nav { display: flex; gap: 1.5rem; }
+.top nav a { color: var(--ink); text-decoration: none; font-size: 0.97rem; font-weight: 500; padding: 0.25rem 0; border-bottom: 2px solid transparent; }
+.top nav a:hover { border-bottom-color: var(--accent); }
+
+/* Hero */
+.hero { padding: 5rem 0 4rem; display: grid; grid-template-columns: 1fr 15rem; gap: 3rem; align-items: center; }
+.portrait { margin: 0; width: 15rem; aspect-ratio: 4 / 5; border-radius: 8px; overflow: hidden; border: 1px solid var(--rule); background: var(--band); display: flex; align-items: center; justify-content: center; }
+.portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.portrait .initials { font-family: var(--serif); font-weight: 700; font-size: 3.5rem; color: var(--muted); }
+.hero h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(2.4rem, 5.5vw, 3.6rem); line-height: 1.08; letter-spacing: -0.015em; margin: 0 0 0.5rem; }
+.hero .role { font-size: 1.3rem; color: var(--accent); font-weight: 600; margin: 0 0 1.5rem; }
+.hero p.summary { font-size: 1.15rem; color: var(--muted); max-width: 38rem; margin: 0 0 2rem; }
+.actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 0.7rem 1.4rem; border-radius: 4px; font-weight: 600; text-decoration: none; border: 1.5px solid var(--accent); color: var(--accent); font-size: 1rem; }
+.btn.solid { background: var(--accent); color: var(--accent-ink); }
+.btn:hover { filter: brightness(1.08); }
+
+.facts { background: var(--band); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.facts .wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.facts dt { font-size: 0.9rem; color: var(--muted); }
+.facts dd { margin: 0.1rem 0 0; font-weight: 600; }
+.facts div { margin: 0; }
+.facts dl { margin: 0; display: contents; }
+
+/* Sections */
+section { padding: 4.5rem 0; }
+section.alt { background: var(--band); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.head { display: grid; grid-template-columns: 12rem 1fr; gap: 1rem 3rem; }
+h2 { font-family: var(--serif); font-size: 1.7rem; margin: 0; line-height: 1.2; }
+.intro { color: var(--muted); margin: 0 0 2rem; max-width: 40rem; }
+
+/* Projects */
+.project { padding: 1.75rem 0; border-top: 1px solid var(--rule); }
+.project:first-of-type { border-top: 0; padding-top: 0; }
+.project h3 { font-family: var(--serif); font-size: 1.35rem; margin: 0; }
+.project .sub { color: var(--muted); font-size: 0.97rem; margin: 0.15rem 0 0.9rem; }
+.project p { margin: 0 0 0.9rem; max-width: 42rem; }
+.project ul.points { margin: 0 0 1rem; padding-left: 1.2rem; max-width: 42rem; }
+.project ul.points li { margin-bottom: 0.3rem; }
+.tech { font-size: 0.93rem; color: var(--muted); margin: 0 0 0.9rem; }
+.tech strong { color: var(--ink); font-weight: 600; }
+.links { display: flex; gap: 1.25rem; flex-wrap: wrap; font-weight: 600; }
+
+/* Skills */
+.skills { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.75rem 2.5rem; }
+.skills h3 { font-size: 1.02rem; margin: 0 0 0.35rem; font-family: var(--sans); font-weight: 600; }
+.skills p { margin: 0; color: var(--muted); }
+
+/* Education */
+.edu h3 { font-family: var(--serif); font-size: 1.3rem; margin: 0; }
+.edu p { margin: 0.2rem 0 0; color: var(--muted); }
+
+/* Contact */
+.contact p.big { font-size: 1.2rem; max-width: 36rem; margin: 0 0 1.5rem; }
+footer.site { border-top: 1px solid var(--rule); padding: 1.75rem 0 2.5rem; color: var(--muted); font-size: 0.92rem; }
+
+@media (max-width: 760px) {
+  .top nav { gap: 1rem; }
+  .hero { padding: 2.5rem 0 2.5rem; grid-template-columns: 1fr; gap: 2rem; }
+  .portrait { order: -1; width: 9rem; }
+  .portrait .initials { font-size: 2.5rem; }
+  .facts .wrap { grid-template-columns: 1fr; gap: 1rem; }
+  .head { grid-template-columns: 1fr; gap: 0.5rem; }
+  .skills { grid-template-columns: 1fr; }
+  section { padding: 3rem 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Mudiwa Doro</a>
+    <nav aria-label="Main">
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div class="hero-text">
+    <h1>Mudiwa Doro</h1>
+    <p class="role">Computer Science student and software developer</p>
+    <p class="summary">I design and build software for informal traders and smallholder farmers in Zimbabwe, using channels they already use: WhatsApp, USSD and mobile money. My work combines system design, data-driven forecasting and field research.</p>
+    <div class="actions">
+      <a class="btn solid" href="#contact">Contact me</a>
+      <a class="btn" href="#projects">View projects</a>
+    </div>
+    </div>
+    <figure class="portrait">
+    
+    <img src="IMG_2353.jpeg" alt="Portrait of Mudiwa Doro">
+    <span class="initials" aria-hidden="true"></span>
+  </figure>
+  </div>
+
+  <div class="facts">
+    <div class="wrap">
+      <div><dl><dt>Studying</dt><dd>BSc Honours, Computer Science</dd></dl></div>
+      <div><dl><dt>University</dt><dd>Midlands State University</dd></dl></div>
+      <div><dl><dt>Location</dt><dd>Zimbabwe</dd></dl></div>
+    </div>
+  </div>
+
+  <section id="projects">
+    <div class="wrap">
+      <div class="head">
+        <h2>Selected projects</h2>
+        <p class="intro">Applied projects built around real problems in informal trade and agriculture.</p>
+      </div>
+      <div class="head" style="margin-top:1rem">
+        <div></div>
+        <div>
+
+          <article class="project">
+            <h3>VendAI</h3>
+            <p class="sub">WhatsApp demand forecasting and inventory system for informal traders. Final-year research project.</p>
+            <ul class="points">
+              <li>Traders record sales and stock in plain language or through a simple menu, and receive stock levels and restock advice by reply.</li>
+              <li>Built a conversation engine with free-text and menu parsing, and a moving-average demand forecast.</li>
+              <li>Developed a web MVP with a chat interface for traders and an admin dashboard for agent-assisted registration.</li>
+              <li>Supports English, Shona and Ndebele. Designed for vendors in Gweru, Bulawayo and Harare.</li>
+            </ul>
+            <p class="tech"><strong>Built with:</strong> Python, Flask, SQLite, WhatsApp Business API (simulated in prototype)</p>
+            <div class="links"><!-- Add repo or demo link here --></div>
+          </article>
+
+          <article class="project">
+            <h3>AgriShield</h3>
+            <p class="sub">USSD drought and pest micro-insurance for smallholder farmers. MSU Enovate4Impact, Insuretech stream.</p>
+            <ul class="points">
+              <li>Farmers register by USSD. Payouts are triggered automatically when satellite and climate data cross a drought threshold, with no claim forms.</li>
+              <li>Combines Sentinel-2 vegetation index data, NASA POWER climate data and an XGBoost drought-risk model.</li>
+              <li>Payouts delivered through mobile money. Four user roles: farmer, field agent, admin and faculty reviewer.</li>
+              <li>Selected for the pitch round. Field pilot planned in Chiwundura and Gweru rural.</li>
+            </ul>
+            <p class="tech"><strong>Built with:</strong> Supabase, XGBoost, USSD, EcoCash and Innbucks integration (planned), GitHub</p>
+            <div class="links"><!-- Add repo or demo link here --></div>
+          </article>
+
+          <article class="project">
+            <h3>CampusTraders</h3>
+            <p class="sub">Live web application for the campus community.</p>
+            <p>Add a short description here: what it does, who uses it, and your role.</p>
+            <p class="tech"><strong>Built with:</strong> Deployed on Vercel, source on GitHub</p>
+            <div class="links">
+              <a href="https://campustraders.vercel.app/">Visit live site</a>
+              <a href="https://github.com/mudro1234-ops/campustraders">View source</a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="alt">
+    <div class="wrap">
+      <div class="head">
+        <h2>Skills</h2>
+        <div class="skills">
+          <div><h3>Programming and backend</h3><p>Python, Flask, SQLite, Supabase</p></div>
+          <div><h3>Data and machine learning</h3><p>Demand forecasting, XGBoost, satellite vegetation indices (NDVI), NASA POWER climate data</p></div>
+          <div><h3>Mobile channels</h3><p>WhatsApp conversational systems, USSD menu design, mobile money payout flows</p></div>
+          <div><h3>Practice</h3><p>Systems analysis, research methods, Git and GitHub, technical documentation</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="wrap">
+      <div class="head">
+        <h2>Education</h2>
+        <div class="edu">
+          <h3>BSc Honours in Computer Science</h3>
+          <p>Midlands State University, Zimbabwe</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="alt contact">
+    <div class="wrap">
+      <div class="head">
+        <h2>Contact</h2>
+        <div>
+          <p class="big">I am open to internships, research collaboration and project work. Email is the best way to reach me.</p>
+          <div class="actions">
+            <a class="btn solid" href="mailto:mudro1234@gmail.com">Gmail</a>
+            <a class="btn" href="https://github.com/mudro1234-ops">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="wrap"><footer class="site">Mudiwa Doro. Midlands State University, Zimbabwe.</footer></div>
+
+</body>
+</html>
