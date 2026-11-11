@@ -1,0 +1,13 @@
+import type { SVGProps } from "react";
+
+export default function BrandMark({ compact = false, light = false }: { compact?: boolean; light?: boolean }) {
+  return <span className={`vektorBrand ${compact ? "compact" : ""} ${light ? "light" : ""}`}>
+    <svg className="vektorSymbol" viewBox="0 0 64 64" role="img" aria-label="VEKTOR symbol">
+      <path d="M5 9 28 52 42 27 34 22 27 37 15 13Z" fill="#159de0"/>
+      <path d="m29 52 10-2 20-39-14 8-12 23-6-8-8 5Z" fill="#75d63f"/>
+      <path d="M42 7c7 2 12 7 14 14M47 2c10 3 16 10 18 20" fill="none" stroke="#d9f5ff" strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="39" cy="16" r="3" fill="#d9f5ff"/>
+    </svg>
+    <span className="vektorWord">VEKTOR{!compact && <small>FLEET TELEMETRY & TRACKING</small>}</span>
+  </span>;
+}

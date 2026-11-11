@@ -1,0 +1,1 @@
+{"name":"madrude-fleet-intelligence","private":true,"version":"0.1.0","packageManager":"pnpm@10.0.0","scripts":{"dev":"pnpm --filter @madrude/web dev","build":"pnpm --filter @madrude/web build","typecheck":"pnpm --recursive typecheck"},"devDependencies":{"typescript":"^5.7.3"}}
