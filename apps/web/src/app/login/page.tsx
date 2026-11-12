@@ -24,10 +24,10 @@ function LoginForm() {
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.replace(params.get("next") || "/");
+        const requestedPath = params.get("next");\n        const safePath = requestedPath?.startsWith("/") && !requestedPath.startsWith("//") ? requestedPath : "/";\n        router.replace(safePath);
         router.refresh();
       } else {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/auth/callback" } });
         if (error) throw error;
         setMessage(data.session ? "Account created. You can continue." : "Account created. Check your email to confirm your address before signing in.");
         if (data.session) router.replace("/");
