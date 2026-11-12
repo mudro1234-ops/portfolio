@@ -1,0 +1,16 @@
+{
+  "name": "vektor",
+  "private": true,
+  "version": "0.1.0",
+  "description": "VEKTOR - Fleet Telemetry & Tracking (multi-tenant SaaS)",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --filter @vektor/web dev",
+    "build": "pnpm --filter @vektor/web build",
+    "start": "pnpm --filter @vektor/web start",
+    "typecheck": "pnpm --filter @vektor/web typecheck",
+    "mobile": "pnpm --filter @vektor/mobile start",
+    "test:db": "bash supabase/tests/run_tests.sh",
+    "simulate": "node scripts/simulate-gps.mjs"
+  }
+}

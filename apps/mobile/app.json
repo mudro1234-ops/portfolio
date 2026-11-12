@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "VEKTOR Driver",
+    "slug": "vektor-driver",
+    "scheme": "vektor",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "VEKTOR uses your location during an active, consented work shift to share your assigned vehicle's position.",
+          "locationWhenInUsePermission": "VEKTOR uses your location during an active, consented work shift to share your assigned vehicle's position.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    }
+  }
+}
