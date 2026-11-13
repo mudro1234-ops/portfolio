@@ -8,6 +8,7 @@ type Vehicle = { id: string; registration_number: string; make: string | null; m
 
 export default function VehiclesPage() {
   const [orgId,setOrgId]=useState("");
+  const [workspaceType,setWorkspaceType]=useState<"company"|"individual">("company");
   const [items,setItems]=useState<Vehicle[]>([]);
   const [registration,setRegistration]=useState("");
   const [make,setMake]=useState("");
@@ -26,6 +27,8 @@ export default function VehiclesPage() {
     const {data:membership,error:memberError}=await supabase.from("organization_memberships").select("organization_id").eq("user_id",user.id).limit(1).maybeSingle();
     if(memberError||!membership){setError(memberError?.message??"Create a company workspace before adding vehicles.");setLoading(false);return;}
     setOrgId(membership.organization_id);
+    const {data:organization}=await supabase.from("organizations").select("workspace_type").eq("id",membership.organization_id).maybeSingle();
+    const kind=organization?.workspace_type==="individual"?"individual":"company";setWorkspaceType(kind);
     const {data,error:queryError}=await supabase.from("vehicles").select("id,registration_number,make,model,year,status").eq("organization_id",membership.organization_id).order("created_at",{ascending:false});
     if(queryError)setError(queryError.message);else setItems((data??[]) as Vehicle[]);
     setLoading(false);
@@ -38,9 +41,9 @@ export default function VehiclesPage() {
     if(insertError)setError(insertError.message);else{setRegistration("");setMake("");setModel("");setYear("");await load();}
     setBusy(false);
   }
-  async function remove(id:string){if(!confirm("Remove this vehicle from the company fleet?"))return;const {error:deleteError}=await supabase.from("vehicles").delete().eq("id",id).eq("organization_id",orgId);if(deleteError)setError(deleteError.message);else await load();}
+  async function remove(id:string){if(!confirm("Remove this vehicle from your workspace?"))return;const {error:deleteError}=await supabase.from("vehicles").delete().eq("id",id).eq("organization_id",orgId);if(deleteError)setError(deleteError.message);else await load();}
 
-  return <main className="pageWrap"><header className="pageHeader"><div><Link href="/" className="backLink">← Dashboard</Link><div className="eyebrow">FLEET MANAGEMENT</div><h1>Vehicles</h1><p className="muted">Register and maintain vehicles belonging to your company workspace.</p></div><span className="pill">{items.length} vehicles</span></header>
+  return <main className={`pageWrap theme-${workspaceType}`}><header className="pageHeader"><div><Link href="/" className="backLink">← Dashboard</Link><div className="eyebrow">{workspaceType==="individual"?"PERSONAL VEHICLE":"FLEET MANAGEMENT"}</div><h1>{workspaceType==="individual"?"My vehicle":"Vehicles"}</h1><p className="muted">{workspaceType==="individual"?"Register and maintain the vehicles in your personal workspace.":"Register and maintain vehicles belonging to your company workspace."}</p></div><span className="pill">{items.length} vehicles</span></header>
     <section className="card"><h2>Add a vehicle</h2><form className="dataForm" onSubmit={submit}>
       <label>Registration number<input required maxLength={30} value={registration} onChange={e=>setRegistration(e.target.value)} placeholder="e.g. AEB 1234"/></label>
       <label>Make<input value={make} onChange={e=>setMake(e.target.value)} placeholder="Toyota"/></label>
