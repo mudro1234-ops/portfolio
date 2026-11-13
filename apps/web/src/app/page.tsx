@@ -72,8 +72,8 @@ export default function Home() {
     router.refresh();
   }
 
-  const companyNav = [["Overview", "/"], ["Live Tracking", "/tracking"], ["Vehicles", "/vehicles"], ["Drivers", "/drivers"], ["Assignments", "/assignments"], ["GPS Devices", "/devices"], ["Trips", "/trips"], ["Geofences", "/geofences"], ["Alerts", "/alerts"], ["Maintenance", "/maintenance"], ["Fuel & Expenses", "/fuel"], ["Reports", "/reports"], ["AI Assistant", "/assistant"], ["Team & Permissions", "/team"], ["Subscription", "/subscription"], ["Settings", "/settings"]];
-  const individualNav = [["Overview", "/"], ["My Vehicle", "/vehicles"], ["GPS Device", "/devices"], ["Journey History", "/trips"], ["Security Alerts", "/alerts"], ["Maintenance", "/maintenance"], ["AI Assistant", "/assistant"], ["Account Settings", "/settings"]];
+  const companyNav = [["Overview", "/"], ["Live Tracking", "/tracking"], ["Vehicles", "/vehicles"], ["Drivers", "/drivers"], ["Assignments", "/assignments"], ["GPS Devices", "/devices"], ["Trips", "/trips"], ["Geofences", "/geofences"], ["Alerts", "/alerts"], ["Maintenance", "/maintenance"], ["Fuel & Expenses", "/fuel"], ["Reports", "/reports"], ["AI Assistant", "/assistant"], ["Team & Permissions", "/team"], ["Subscription", "/subscription"], ["Support", "/support"], ["Settings", "/settings"]];
+  const individualNav = [["Overview", "/"], ["My Vehicle", "/vehicles"], ["GPS Device", "/devices"], ["Journey History", "/trips"], ["Security Alerts", "/alerts"], ["Maintenance", "/maintenance"], ["AI Assistant", "/assistant"], ["Support", "/support"], ["Account Settings", "/settings"]];
   const nav = workspaceType === "individual" ? individualNav : companyNav;
 
   return <div className={`shell theme-${workspaceType}`}>
