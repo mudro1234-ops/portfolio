@@ -114,7 +114,7 @@ export default function ApplyWorkspacePage() {
       </label>
       <label>Country
         <select value={country} onChange={e => { setCountry(e.target.value); setCurrency(e.target.value === "ZW" ? "USD" : e.target.value === "ZA" ? "ZAR" : "USD"); }}>
-          <option value="ZW">Zimbabwe</option><option value="ZA">South Africa</option><option value="BW">Botswana</option><option value="ZM">Zambia</option><option value="GB">United Kingdom</option><option value="US">United States</option><option value="OTHER">Other</option>
+          <option value="ZW">Zimbabwe</option><option value="ZA">South Africa</option><option value="BW">Botswana</option><option value="ZM">Zambia</option><option value="GB">United Kingdom</option><option value="US">United States</option>
         </select>
       </label>
       <label>Preferred currency
