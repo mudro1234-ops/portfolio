@@ -31,11 +31,12 @@ export async function GET() {
   if ("response" in context) return context.response;
   const { admin } = context;
   try {
-    const [orgs, memberships, vehicles, devices, apps, subscriptions, logs, support, settings, userPage] = await Promise.all([
+    const [orgs, memberships, vehicles, devices, states, apps, subscriptions, logs, support, settings, userPage] = await Promise.all([
       admin.from("organizations").select("id,name,slug,workspace_type,contact_email,contact_phone,country_code,currency_code,account_status,status_reason,status_changed_at,created_at").order("created_at", { ascending: false }).limit(500),
       admin.from("organization_memberships").select("id,organization_id,user_id,role,created_at").order("created_at", { ascending: false }).limit(1000),
       admin.from("vehicles").select("id,organization_id,registration_number,make,model,status,created_at").order("created_at", { ascending: false }).limit(1000),
       admin.from("gps_devices").select("id,organization_id,vehicle_id,label,unique_id,provider,provider_device_id,active,last_seen_at,manufacturer,model,created_at").order("created_at", { ascending: false }).limit(1000),
+      admin.from("vehicle_current_state").select("vehicle_id,device_time,received_at,speed_kph,heading_deg,is_stale,position").limit(2000),
       admin.from("workspace_applications").select("id,applicant_user_id,workspace_type,workspace_name,contact_email,contact_phone,country_code,currency_code,status,review_note,reviewed_at,created_at,organization_id").order("created_at", { ascending: false }).limit(500),
       admin.from("subscription_accounts").select("id,organization_id,plan_code,status,trial_ends_at,current_period_end,created_at").limit(500),
       admin.from("audit_logs").select("id,organization_id,actor_user_id,action,resource_type,resource_id,metadata,created_at").order("created_at", { ascending: false }).limit(250),
@@ -43,7 +44,7 @@ export async function GET() {
       admin.from("platform_settings").select("key,value,description,updated_at").order("key"),
       admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
     ]);
-    const failures = [orgs, memberships, vehicles, devices, apps, subscriptions, logs, support, settings].filter(x => x.error);
+    const failures = [orgs, memberships, vehicles, devices, states, apps, subscriptions, logs, support, settings].filter(x => x.error);
     if (failures.length) throw failures[0].error;
     const users = userPage.data?.users ?? [];
     const userMap = Object.fromEntries(users.map(u => [u.id, { id: u.id, email: u.email ?? "", created_at: u.created_at, last_sign_in_at: u.last_sign_in_at, email_confirmed_at: u.email_confirmed_at, banned_until: u.banned_until, user_metadata: u.user_metadata }]));
@@ -63,13 +64,14 @@ export async function GET() {
         activeWorkspaces: (orgs.data ?? []).filter(o => o.account_status === "active").length,
         suspendedWorkspaces: (orgs.data ?? []).filter(o => o.account_status === "suspended").length,
         archivedWorkspaces: (orgs.data ?? []).filter(o => o.account_status === "archived").length,
-        users: users.length, vehicles: (vehicles.data ?? []).length, devices: (devices.data ?? []).length,
+        users: users.length, activeUsers: users.filter(u => u.last_sign_in_at && Date.now() - new Date(u.last_sign_in_at).getTime() <= 30 * 86400000).length, vehicles: (vehicles.data ?? []).length, devices: (devices.data ?? []).length,
         onlineDevices: deviceRows.filter(d => d.online).length,
         pendingApplications: (apps.data ?? []).filter(a => a.status === "pending").length,
+        rejectedApplications: (apps.data ?? []).filter(a => a.status === "rejected").length,
         openSupport: supportRows.filter(s => ["open", "in_progress", "waiting"].includes(s.status)).length,
       },
       workspaces: orgs.data ?? [], users: users.map(u => userMap[u.id]), memberships: memberRows,
-      vehicles: vehicleRows, devices: deviceRows, applications: apps.data ?? [],
+      vehicles: vehicleRows, devices: deviceRows, vehicleStates: states.data ?? [], applications: apps.data ?? [],
       subscriptions: subscriptionRows, auditLogs: logRows, supportRequests: supportRows,
       settings: settings.data ?? [],
       integrations: {
@@ -158,6 +160,14 @@ export async function POST(request: Request) {
       const { error } = await admin.auth.admin.updateUserById(id, { ban_duration: suspend ? "876000h" : "none" });
       if (error) throw error;
       await audit(admin, user.id, suspend ? "user_access_suspended" : "user_access_reactivated", "auth_user", id, { reason: String(body.reason ?? "") });
+    } else if (action === "send_recovery") {
+      const id = String(body.id ?? "");
+      const { data: target, error: targetError } = await admin.auth.admin.getUserById(id);
+      if (targetError || !target.user?.email) throw targetError ?? new Error("User email is unavailable.");
+      const redirect = process.env.NEXT_PUBLIC_APP_URL ? new URL("/auth/callback?next=%2Freset-password", process.env.NEXT_PUBLIC_APP_URL).toString() : undefined;
+      const { error } = await admin.auth.resetPasswordForEmail(target.user.email, redirect ? { redirectTo: redirect } : undefined);
+      if (error) throw error;
+      await audit(admin, user.id, "account_recovery_email_sent", "auth_user", id, { email: target.user.email });
     } else if (action === "subscription_update") {
       const id = String(body.id ?? ""), status = String(body.status ?? ""), plan_code = String(body.plan_code ?? "trial").trim();
       if (!id || !subscriptionStatuses.includes(status as typeof subscriptionStatuses[number]) || !/^[a-z0-9_-]{2,40}$/i.test(plan_code)) return NextResponse.json({ error: "Invalid plan or subscription status." }, { status: 400 });
