@@ -18,7 +18,7 @@ async function getContext() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const secret = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !secret) return { response: NextResponse.json({ error: "Server-side Supabase admin credentials are not configured." }, { status: 503 }) } as const;
-  return { user, admin: createAdminClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } }) } as const;
+  return { user, session, admin: createAdminClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } }) } as const;
 }
 
 async function audit(admin: ReturnType<typeof createAdminClient>, actor: string, action: string, type: string, id: string | null, metadata: Record<string, unknown> = {}) {
@@ -90,7 +90,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const context = await getContext();
   if ("response" in context) return context.response;
-  const { user, admin } = context;
+  const { user, session, admin } = context;
   try {
     const body = await request.json();
     const action = String(body.action ?? "");
