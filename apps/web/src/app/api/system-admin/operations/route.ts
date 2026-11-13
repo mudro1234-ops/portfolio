@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       const name = String(body.name ?? "").trim();
       const contact_email = String(body.contact_email ?? "").trim().toLowerCase();
       const contact_phone = String(body.contact_phone ?? "").trim();
-      if (!id || name.length < 2 || name.length > 120) return NextResponse.json({ error: "Enter a workspace name between 2 and 120 characters." }, { status: 400 });
+      if (!id || name.length < 2 || name.length > 120 || (contact_email && (contact_email.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(contact_email)))) return NextResponse.json({ error: "Enter a valid workspace name and contact email." }, { status: 400 });
       const { error } = await admin.from("organizations").update({ name, contact_email: contact_email || null, contact_phone: contact_phone || null, updated_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       await audit(admin, user.id, "workspace_updated", "organization", id, { name, contact_email, contact_phone });
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       const organizationId = String(body.organization_id ?? "");
       const email = String(body.email ?? "").trim().toLowerCase();
       const role = String(body.role ?? "driver");
-      if (!organizationId || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !roles.includes(role as typeof roles[number])) {
+      if (!organizationId || email.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !roles.includes(role as typeof roles[number])) {
         return NextResponse.json({ error: "Choose a workspace, enter a valid email and select a supported role." }, { status: 400 });
       }
       const { data: organization, error: orgError } = await admin.from("organizations").select("id,name,account_status").eq("id", organizationId).maybeSingle();
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
       const { data: target, error: readError } = await admin.from("organization_memberships").select("organization_id,user_id,role").eq("id", id).maybeSingle();
       if (readError || !target) throw readError ?? new Error("Membership not found.");
       if (target.user_id === user.id) return NextResponse.json({ error: "You cannot remove your own membership." }, { status: 400 });
-      if (!String(body.reason ?? "").trim()) return NextResponse.json({ error: "A reason is required." }, { status: 400 });
+      if (String(body.reason ?? "").trim().length < 5) return NextResponse.json({ error: "Provide a reason of at least 5 characters." }, { status: 400 });
       const { error } = await admin.from("organization_memberships").delete().eq("id", id);
       if (error) throw error;
       await audit(admin, user.id, "workspace_member_removed", "organization_membership", id, { target_user_id: target.user_id, role: target.role, reason: body.reason });
