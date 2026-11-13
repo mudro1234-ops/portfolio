@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     });
     const appUrl = process.env.NEXT_PUBLIC_APP_URL
       || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
-    const redirectTo = appUrl ? new URL("/auth/callback", appUrl).toString() : undefined;
+    const redirectTo = appUrl ? new URL("/auth/callback?next=%2Fset-password", appUrl).toString() : undefined;
 
     const { data: invitation, error: invitationError } = await admin.auth.admin.inviteUserByEmail(
       email,
