@@ -34,6 +34,7 @@ export default function ModulePage() {
   const supabase = useMemo(() => createClient(), []);
   const [orgId,setOrgId] = useState("");
   const [workspaceType,setWorkspaceType] = useState<"company"|"individual">("company");
+  const [workspaceRestricted,setWorkspaceRestricted] = useState(false);
   const [rows,setRows] = useState<Row[]>([]);
   const [loading,setLoading] = useState(true);
   const [busy,setBusy] = useState(false);
@@ -54,7 +55,7 @@ export default function ModulePage() {
     setOrgId(membership.organization_id);
     const {data:organization}=await supabase.from("organizations").select("workspace_type").eq("id",membership.organization_id).maybeSingle();
     const kind=organization?.workspace_type==="individual"?"individual":"company";setWorkspaceType(kind);
-    if(kind==="individual" && ["team","assignments","consent"].includes(key)){setError("This page is part of company fleet management. Individual owners have a separate, private vehicle workspace.");setLoading(false);return;}
+    if(kind==="individual" && ["team","assignments","consent"].includes(key)){setWorkspaceRestricted(true);setError("This page is part of company fleet management. Individual owners have a separate, private vehicle workspace.");setLoading(false);return;}
     if(config?.table){
       const {data,error:queryError} = await supabase.from(config.table).select("*").eq("organization_id",membership.organization_id).order(config.orderBy ?? "created_at",{ascending:false}).limit(100);
       if(queryError)setError(queryError.message); else setRows((data ?? []) as Row[]);
@@ -91,6 +92,7 @@ export default function ModulePage() {
     setBusy(false);
   }
   if(!config)return <main className={`pageWrap theme-${workspaceType}`}><Link href="/" className="backLink">← Dashboard</Link><h1>Module not found</h1></main>;
+  if(workspaceRestricted)return <main className="pageWrap theme-individual"><Link href="/" className="backLink">← Back to your workspace</Link><section className="card"><div className="eyebrow">COMPANY FEATURE</div><h1>{config.title}</h1><p className="muted">This feature is available in company fleet workspaces. Your individual workspace has its own vehicle-focused tools and private data.</p><Link href="/vehicles" className="primaryLink">Open my vehicles</Link></section></main>;
   return <main className={`pageWrap theme-${workspaceType}`}>
     <header className="pageHeader"><div><BrandMark compact /><Link href="/" className="backLink">← VEKTOR Dashboard</Link><div className="eyebrow">{config.eyebrow}</div><h1>{config.title}</h1><p className="muted">{config.description}</p></div><span className="pill">{loading?"Loading…":rows.length+" records"}</span></header>
     {error&&<p className="errorText" role="alert">{error}</p>}
