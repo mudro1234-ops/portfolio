@@ -76,7 +76,7 @@ export default function Home() {
   const individualNav = [["Overview", "/"], ["My Vehicle", "/vehicles"], ["GPS Device", "/devices"], ["Journey History", "/trips"], ["Security Alerts", "/alerts"], ["Maintenance", "/maintenance"], ["AI Assistant", "/assistant"], ["Account Settings", "/settings"]];
   const nav = workspaceType === "individual" ? individualNav : companyNav;
 
-  return <div className="shell">
+  return <div className={`shell theme-${workspaceType}`}>
     <aside className="side">
       <BrandMark />
       <div className="brandTagline">{workspaceType === "individual" ? "Personal Vehicle Intelligence" : "Fleet Telemetry & Tracking"}</div>

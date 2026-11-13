@@ -8,6 +8,8 @@ type Driver = { id: string; user_id: string | null; full_name: string; phone: st
 
 export default function DriversPage() {
   const [orgId,setOrgId]=useState("");
+  const [workspaceType,setWorkspaceType]=useState<"company"|"individual">("company");
+  const [workspaceRestricted,setWorkspaceRestricted]=useState(false);
   const [items,setItems]=useState<Driver[]>([]);
   const [name,setName]=useState("");
   const [userId,setUserId]=useState("");
@@ -26,6 +28,9 @@ export default function DriversPage() {
     const {data:membership,error:memberError}=await supabase.from("organization_memberships").select("organization_id").eq("user_id",user.id).limit(1).maybeSingle();
     if(memberError||!membership){setError(memberError?.message??"Create a company workspace before adding drivers.");setLoading(false);return;}
     setOrgId(membership.organization_id);
+    const {data:organization}=await supabase.from("organizations").select("workspace_type").eq("id",membership.organization_id).maybeSingle();
+    const kind=organization?.workspace_type==="individual"?"individual":"company";setWorkspaceType(kind);
+    if(kind==="individual"){setWorkspaceRestricted(true);setError("Driver management is available in company fleet workspaces. Individual owners can manage their own vehicle and tracking devices.");setLoading(false);return;}
     const {data,error:queryError}=await supabase.from("drivers").select("id,user_id,full_name,phone,licence_number,licence_expiry,status").eq("organization_id",membership.organization_id).order("created_at",{ascending:false});
     if(queryError)setError(queryError.message);else setItems((data??[]) as Driver[]);
     setLoading(false);
@@ -40,7 +45,9 @@ export default function DriversPage() {
   }
   async function remove(id:string){if(!confirm("Remove this driver record?"))return;const {error:deleteError}=await supabase.from("drivers").delete().eq("id",id).eq("organization_id",orgId);if(deleteError)setError(deleteError.message);else await load();}
 
-  return <main className="pageWrap"><header className="pageHeader"><div><Link href="/" className="backLink">← Dashboard</Link><div className="eyebrow">PEOPLE MANAGEMENT</div><h1>Drivers</h1><p className="muted">Maintain driver records and licence information.</p></div><span className="pill">{items.length} drivers</span></header>
+  if(workspaceRestricted)return <main className="pageWrap theme-individual"><Link href="/" className="backLink">← Back to your workspace</Link><section className="card"><div className="eyebrow">COMPANY FEATURE</div><h1>Driver management</h1><p className="muted">Driver records are managed by company fleet workspaces. Your individual workspace keeps the focus on your own vehicles, GPS devices, journeys and maintenance.</p><Link href="/vehicles" className="primaryLink">Open my vehicles</Link></section></main>;
+
+  return <main className="pageWrap theme-company"><header className="pageHeader"><div><Link href="/" className="backLink">← Dashboard</Link><div className="eyebrow">PEOPLE MANAGEMENT</div><h1>Drivers</h1><p className="muted">Maintain driver records and licence information.</p></div><span className="pill">{items.length} drivers</span></header>
     <section className="card"><h2>Add a driver</h2><form className="dataForm" onSubmit={submit}>
       <label>Full name<input required maxLength={120} value={name} onChange={e=>setName(e.target.value)} placeholder="Driver full name"/></label>
       <label>Supabase user ID (optional)<input value={userId} onChange={e=>setUserId(e.target.value)} placeholder="Link driver login account"/></label>
