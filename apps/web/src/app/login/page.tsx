@@ -9,7 +9,6 @@ import BrandMark from "@/components/brand-mark";
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -21,19 +20,27 @@ function LoginForm() {
     setMessage("");
     try {
       const supabase = createClient();
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        router.replace(params.get("next") || "/");
-        router.refresh();
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      const requested = params.get("next");
+      const safeNext = requested && requested.startsWith("/") && !requested.startsWith("//")
+        ? requested
+        : null;
+
+      if (safeNext) {
+        router.replace(safeNext);
       } else {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        setMessage(data.session ? "Account created. You can continue." : "Account created. Check your email to confirm your address before signing in.");
-        if (data.session) router.replace("/");
+        const { data: admin } = await supabase
+          .from("system_admins")
+          .select("user_id")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+        router.replace(admin ? "/system-admin" : "/");
       }
+      router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Authentication failed.");
+      setMessage(error instanceof Error ? error.message : "Sign in failed. Check your details and try again.");
     } finally {
       setBusy(false);
     }
@@ -42,17 +49,18 @@ function LoginForm() {
   return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",padding:24,background:"#080d18"}}>
     <section style={{width:"100%",maxWidth:420,border:"1px solid #23334b",borderRadius:18,padding:30,background:"#101a2b",color:"#edf4ff"}}>
       <BrandMark />
-      <h1 style={{fontSize:29,margin:"12px 0 6px"}}>{mode==="login"?"Welcome back":"Create your account"}</h1>
-      <p style={{color:"#91a1b8",fontSize:13,lineHeight:1.6}}>Sign in to access your company fleet workspace.</p>
+      <div style={{fontSize:11,letterSpacing:2,color:"#b7e84a",marginTop:24}}>SECURE VEKTOR ACCESS</div>
+      <h1 style={{fontSize:29,margin:"12px 0 6px"}}>Welcome back</h1>
+      <p style={{color:"#91a1b8",fontSize:13,lineHeight:1.6}}>Sign in with the email address that received your VEKTOR invitation.</p>
       <form onSubmit={submit} style={{display:"grid",gap:13,marginTop:24}}>
         <label style={{fontSize:12,color:"#b8c6d9"}}>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} style={field}/></label>
-        <label style={{fontSize:12,color:"#b8c6d9"}}>Password<input required minLength={8} type="password" autoComplete={mode==="login"?"current-password":"new-password"} value={password} onChange={e=>setPassword(e.target.value)} style={field}/></label>
-        <button disabled={busy} style={button}>{busy?"Please wait…":mode==="login"?"Sign in":"Create account"}</button>
+        <label style={{fontSize:12,color:"#b8c6d9"}}>Password<input required type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} style={field}/></label>
+        <button disabled={busy} style={button}>{busy?"Signing in…":"Sign in securely"}</button>
       </form>
-      {message && <p role="status" style={{fontSize:12,color:"#f0c987",lineHeight:1.5}}>{message}</p>}
-      <button onClick={()=>{setMode(mode==="login"?"signup":"login");setMessage("");}} style={{background:"none",border:0,color:"#b7e84a",padding:"14px 0 0",cursor:"pointer",fontSize:12}}>
-        {mode==="login"?"New to VEKTOR? Create an account":"Already registered? Sign in"}
-      </button>
+      {message && <p role="alert" style={{fontSize:12,color:"#ffb4a9",lineHeight:1.5}}>{message}</p>}
+      <p style={{fontSize:12,color:"#91a1b8",lineHeight:1.6,marginTop:18}}>
+        VEKTOR accounts are invitation-only. If you have not received an invitation, contact the platform administrator.
+      </p>
     </section>
   </main>;
 }
