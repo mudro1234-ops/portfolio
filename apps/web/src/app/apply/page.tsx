@@ -95,7 +95,7 @@ export default function ApplyWorkspacePage() {
       {application.review_note && <p>Administrator note: {application.review_note}</p>}
       {application.status === "pending" && <p>Your request is waiting for administrator review. You do not need to submit it again.</p>}
       {application.status === "approved" && <p>Your workspace has been approved. Sign out and sign in again if it is not yet visible on your dashboard.</p>}
-      {application.status === "rejected" && <p>Contact support if you need clarification or want to submit a revised request.</p>}
+      {application.status === "rejected" && <><p>Contact support if you need clarification, or submit a revised request.</p><button type="button" className="primaryButton" onClick={() => setApplication(null)}>Start a new application</button></> }
     </div> : <form onSubmit={submit} className="formStack">
       <label>Workspace type
         <select value={workspaceType} onChange={e => setWorkspaceType(e.target.value as "company" | "individual")}>
