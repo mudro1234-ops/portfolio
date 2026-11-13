@@ -16,6 +16,7 @@ export default function Home() {
   const [workspaceName, setWorkspaceName] = useState("");
   const [counts, setCounts] = useState({ vehicles: 0, drivers: 0, trips: 0, alerts: 0 });
   const [error, setError] = useState("");
+  const [isSystemAdmin, setIsSystemAdmin] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -25,6 +26,8 @@ export default function Home() {
       if (authError || !user) { router.replace("/login"); return; }
       if (!active) return;
       setEmail(user.email ?? "");
+      const { data: adminAccess } = await supabase.rpc("is_system_admin");
+      if (active) setIsSystemAdmin(adminAccess === true);
       const { data: memberships, error: memberError } = await supabase
         .from("organization_memberships")
         .select("organization_id, role")
@@ -82,7 +85,7 @@ export default function Home() {
       <button className="secondaryButton" onClick={signOut}>Sign out</button>
     </aside>
     <main className="main">
-      <div className="top"><div><div className="eyebrow">VEKTOR · Fleet Telemetry & Tracking</div><h1>Fleet overview</h1><div className="muted">{email}</div></div><span className="pill">{loading ? "Loading workspace…" : workspaceName || "No company workspace"}</span></div>
+      <div className="top"><div><div className="eyebrow">VEKTOR · Fleet Telemetry & Tracking</div><h1>Fleet overview</h1><div className="muted">{email}</div></div><div style={{display:"flex",alignItems:"center",gap:12}}>{isSystemAdmin && <Link className="primaryLink" href="/system-admin/applications">System Admin</Link>}<span className="pill">{loading ? "Loading workspace…" : workspaceName || "No company workspace"}</span></div></div>
       {error && <div className="notice" role="alert">{error}</div>}
       {!loading && !workspace && <div className="card onboarding"><div className="eyebrow">First step</div><h2>Request a workspace</h2><p className="muted">Choose a company workspace or an individual vehicle-owner workspace. VEKTOR creates it after a system administrator approves your application.</p><Link className="primaryLink" href="/onboarding">Apply for a workspace</Link></div>}
       <div className="grid">
