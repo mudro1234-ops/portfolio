@@ -133,7 +133,10 @@ export async function POST(request: Request) {
         if (!invitation.user) throw new Error("Supabase did not return an invited user.");
         invitedUserId = invitation.user.id;
       }
-      const { error: membershipError } = await admin.from("organization_memberships").upsert({ organization_id: organizationId, user_id: invitedUserId, role }, { onConflict: "organization_id,user_id" });
+      const { data: priorMembership, error: priorMembershipError } = await admin.from("organization_memberships").select("id").eq("organization_id", organizationId).eq("user_id", invitedUserId).maybeSingle();
+      if (priorMembershipError) throw priorMembershipError;
+      if (priorMembership) return NextResponse.json({ error: "This user already belongs to the selected workspace. Use the role selector to change their permissions." }, { status: 409 });
+      const { error: membershipError } = await admin.from("organization_memberships").insert({ organization_id: organizationId, user_id: invitedUserId, role });
       if (membershipError) throw membershipError;
       await audit(admin, user.id, existing ? "existing_user_added_to_workspace" : "workspace_member_invited", "organization_membership", invitedUserId, { organization_id: organizationId, workspace_name: organization.name, email, role });
     } else if (action === "membership_role") {
