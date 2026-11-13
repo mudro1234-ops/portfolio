@@ -32,8 +32,8 @@ export default function SystemAdminApplicationsPage() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError("Sign in with a platform administrator account."); setLoading(false); return; }
-    const { data: isAdmin, error: adminError } = await supabase.rpc("is_system_admin");
-    if (adminError || !isAdmin) { setError("This account does not have System Administrator access."); setLoading(false); return; }
+    const { data: adminRecord, error: adminError } = await supabase.from("system_admins").select("user_id").eq("user_id", user.id).maybeSingle();
+    if (adminError || !adminRecord) { setError("This account does not have System Administrator access."); setLoading(false); return; }
     setAuthorized(true);
     const { data, error: queryError } = await supabase
       .from("workspace_applications")
