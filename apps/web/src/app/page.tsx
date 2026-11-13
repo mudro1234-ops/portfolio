@@ -84,7 +84,7 @@ export default function Home() {
     <main className="main">
       <div className="top"><div><div className="eyebrow">VEKTOR · Fleet Telemetry & Tracking</div><h1>Fleet overview</h1><div className="muted">{email}</div></div><span className="pill">{loading ? "Loading workspace…" : workspaceName || "No company workspace"}</span></div>
       {error && <div className="notice" role="alert">{error}</div>}
-      {!loading && !workspace && <div className="card onboarding"><div className="eyebrow">First step</div><h2>Create your company workspace</h2><p className="muted">Set up your company before registering vehicles, drivers or GPS devices. Your workspace data will be isolated from other companies.</p><Link className="primaryLink" href="/onboarding">Create company workspace</Link></div>}
+      {!loading && !workspace && <div className="card onboarding"><div className="eyebrow">First step</div><h2>Request a workspace</h2><p className="muted">Choose a company workspace or an individual vehicle-owner workspace. VEKTOR creates it after a system administrator approves your application.</p><Link className="primaryLink" href="/onboarding">Apply for a workspace</Link></div>}
       <div className="grid">
         {[["Fleet vehicles", counts.vehicles, "Registered vehicles"], ["Drivers", counts.drivers, "Driver records"], ["Active trips", counts.trips, "Trips currently in progress"], ["Open alerts", counts.alerts, "Alerts awaiting acknowledgement"]].map(([label,value,note])=><div className="card" key={String(label)}><div className="metric-label">{label}</div><div className="metric">{loading ? "—" : value}</div><div className="note">{note}</div></div>)}
       </div>
