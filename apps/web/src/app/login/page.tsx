@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import type { FormEvent, CSSProperties } from "react";
+import type { FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import BrandMark from "@/components/brand-mark";
@@ -46,28 +46,25 @@ function LoginForm() {
     }
   }
 
-  return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",padding:24,background:"#080d18"}}>
-    <section style={{width:"100%",maxWidth:420,border:"1px solid #23334b",borderRadius:18,padding:30,background:"#101a2b",color:"#edf4ff"}}>
+  return <main className="formPage"><section className="formCard">
+    
       <BrandMark />
-      <div style={{fontSize:11,letterSpacing:2,color:"#b7e84a",marginTop:24}}>SECURE VEKTOR ACCESS</div>
-      <h1 style={{fontSize:29,margin:"12px 0 6px"}}>Welcome back</h1>
-      <p style={{color:"#91a1b8",fontSize:13,lineHeight:1.6}}>Sign in with the email address that received your VEKTOR invitation.</p>
-      <form onSubmit={submit} style={{display:"grid",gap:13,marginTop:24}}>
-        <label style={{fontSize:12,color:"#b8c6d9"}}>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} style={field}/></label>
-        <label style={{fontSize:12,color:"#b8c6d9"}}>Password<input required type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} style={field}/></label>
-        <button disabled={busy} style={button}>{busy?"Signing in…":"Sign in securely"}</button>
+      <div className="eyebrow">SECURE VEKTOR ACCESS</div>
+      <h1>Welcome back</h1>
+      <p className="muted">Sign in with the email address that received your VEKTOR invitation.</p>
+      <form onSubmit={submit} className="formStack">
+        <label>Email address<input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)}/></label>
+        <label>Password<input required type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label>
+        <button className="primaryButton" disabled={busy}>{busy?"Signing in…":"Sign in securely"}</button>
       </form>
-      {message && <p role="alert" style={{fontSize:12,color:"#ffb4a9",lineHeight:1.5}}>{message}</p>}
-      <p style={{fontSize:12,color:"#91a1b8",lineHeight:1.6,marginTop:18}}>
+      {message && <p role="alert" className="errorText">{message}</p>}
+      <p className="muted">
         VEKTOR accounts are invitation-only. If you have not received an invitation, contact the platform administrator.
       </p>
-    </section>
-  </main>;
+    </section></main>;
 }
 
-const field: CSSProperties = {display:"block",width:"100%",marginTop:7,padding:"12px 13px",borderRadius:9,border:"1px solid #34465f",background:"#0b1322",color:"#edf4ff",outline:"none"};
-const button: CSSProperties = {padding:13,border:0,borderRadius:9,background:"#b7e84a",color:"#07131b",fontWeight:800,cursor:"pointer"};
 
 export default function LoginPage() {
-  return <Suspense fallback={<main style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"#080d18",color:"#edf4ff"}}>Loading sign in…</main>}><LoginForm /></Suspense>;
+  return <Suspense fallback={<main className="formPage"><p className="muted">Loading sign in…</p></main>}><LoginForm /></Suspense>;
 }
