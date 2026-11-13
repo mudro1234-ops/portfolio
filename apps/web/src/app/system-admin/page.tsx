@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/browser";
 import BrandMark from "@/components/brand-mark";
@@ -87,7 +88,7 @@ export default function SystemAdminPage() {
     }
   }
 
-  async function createWorkspace(event: React.FormEvent<HTMLFormElement>) {
+  async function createWorkspace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setCreating(true);
     setError("");
