@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       const name = String(body.name ?? "").trim();
       const contact_email = String(body.contact_email ?? "").trim().toLowerCase();
       const contact_phone = String(body.contact_phone ?? "").trim();
-      if (!id || name.length < 2 || name.length > 120 || (contact_email && (contact_email.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(contact_email)))) return NextResponse.json({ error: "Enter a valid workspace name and contact email." }, { status: 400 });
+      if (!id || name.length < 2 || name.length > 120 || (contact_email && (contact_email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact_email)))) return NextResponse.json({ error: "Enter a valid workspace name and contact email." }, { status: 400 });
       const { error } = await admin.from("organizations").update({ name, contact_email: contact_email || null, contact_phone: contact_phone || null, updated_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       await audit(admin, user.id, "workspace_updated", "organization", id, { name, contact_email, contact_phone });
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       const organizationId = String(body.organization_id ?? "");
       const email = String(body.email ?? "").trim().toLowerCase();
       const role = String(body.role ?? "driver");
-      if (!organizationId || email.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !roles.includes(role as typeof roles[number])) {
+      if (!organizationId || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !roles.includes(role as typeof roles[number])) {
         return NextResponse.json({ error: "Choose a workspace, enter a valid email and select a supported role." }, { status: 400 });
       }
       const { data: organization, error: orgError } = await admin.from("organizations").select("id,name,account_status").eq("id", organizationId).maybeSingle();
