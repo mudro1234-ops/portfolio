@@ -51,7 +51,7 @@ export async function GET() {
     const orgMap = Object.fromEntries((orgs.data ?? []).map(o => [o.id, o]));
     const memberRows = (memberships.data ?? []).map(m => ({ ...m, user: userMap[m.user_id] ?? null, organization: orgMap[m.organization_id] ?? null }));
     const vehicleRows = (vehicles.data ?? []).map(v => ({ ...v, organization: orgMap[v.organization_id] ?? null }));
-    const deviceRows = (devices.data ?? []).map(d => ({ ...d, organization: orgMap[d.organization_id] ?? null, online: Boolean(d.active && d.last_seen_at && Date.now() - new Date(d.last_seen_at).getTime() < Math.max(120000, (d.expected_interval_seconds ?? 30) * 3000)) }));
+    const deviceRows = (devices.data ?? []).map(d => ({ ...d, organization: orgMap[d.organization_id] ?? null, vehicle: vehicleRows.find(v => v.id === d.vehicle_id) ?? null, online: Boolean(d.active && d.last_seen_at && Date.now() - new Date(d.last_seen_at).getTime() < Math.max(120000, (d.expected_interval_seconds ?? 30) * 3000)) }));
     const subscriptionRows = (subscriptions.data ?? []).map(s => ({ ...s, organization: orgMap[s.organization_id] ?? null }));
     const logRows = (logs.data ?? []).map(l => ({ ...l, actor: userMap[l.actor_user_id] ?? null, organization: orgMap[l.organization_id] ?? null }));
     const supportRows = (support.data ?? []).map(s => ({ ...s, requester: userMap[s.requester_user_id] ?? null }));
