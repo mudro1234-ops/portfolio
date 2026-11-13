@@ -178,9 +178,8 @@ export async function POST(request: Request) {
       const id = String(body.id ?? ""), decision = String(body.decision ?? ""), note = String(body.note ?? "").trim();
       if (!id || !["approve", "reject"].includes(decision)) return NextResponse.json({ error: "Invalid application decision." }, { status: 400 });
       if (decision === "reject" && note.length < 5) return NextResponse.json({ error: "A reason is required when rejecting an application." }, { status: 400 });
-      const { data, error } = await admin.rpc("review_workspace_application", { p_application_id: id, p_decision: decision, p_review_note: note || null });
+      const { error } = await session.rpc("review_workspace_application", { p_application_id: id, p_decision: decision, p_review_note: note || null });
       if (error) throw error;
-      await audit(admin, user.id, "workspace_application_" + decision, "workspace_application", id, { note });
     } else if (action === "support_update") {
       const id = String(body.id ?? ""), status = String(body.status ?? ""), priority = String(body.priority ?? "normal"), assigned_to = body.assigned_to || null, internal_notes = String(body.internal_notes ?? "");
       if (!id || !supportStatuses.includes(status as typeof supportStatuses[number]) || !["low", "normal", "high", "urgent"].includes(priority)) return NextResponse.json({ error: "Invalid support update." }, { status: 400 });
