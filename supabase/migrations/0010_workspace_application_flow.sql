@@ -94,6 +94,7 @@ create policy "applicants submit pending applications"
     and status = 'pending'
     and reviewed_by is null
     and reviewed_at is null
+    and review_note is null
     and organization_id is null
   );
 
@@ -210,3 +211,8 @@ comment on table public.workspace_applications is
   'Approval-gated requests for company or individual owner workspaces. Applicants can submit and read only their own requests.';
 comment on table public.system_admins is
   'Platform-level administrators. Bootstrap the first row manually after verifying the intended account.';
+
+
+-- Explicit Data API privileges: Supabase no longer auto-exposes newly created public tables.
+grant select on table public.system_admins to authenticated;
+grant select, insert, update on table public.workspace_applications to authenticated;
