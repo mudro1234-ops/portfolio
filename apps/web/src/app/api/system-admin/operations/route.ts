@@ -35,7 +35,7 @@ export async function GET() {
       admin.from("organizations").select("id,name,slug,workspace_type,contact_email,contact_phone,country_code,currency_code,account_status,status_reason,status_changed_at,created_at").order("created_at", { ascending: false }).limit(500),
       admin.from("organization_memberships").select("id,organization_id,user_id,role,created_at").order("created_at", { ascending: false }).limit(1000),
       admin.from("vehicles").select("id,organization_id,registration_number,make,model,status,created_at").order("created_at", { ascending: false }).limit(1000),
-      admin.from("gps_devices").select("id,organization_id,vehicle_id,label,unique_id,provider,provider_device_id,active,last_seen_at,manufacturer,model,created_at").order("created_at", { ascending: false }).limit(1000),
+      admin.from("gps_devices").select("id,organization_id,vehicle_id,label,unique_id,provider,provider_device_id,active,last_seen_at,manufacturer,model,expected_interval_seconds,created_at").order("created_at", { ascending: false }).limit(1000),
       admin.from("vehicle_current_state").select("vehicle_id,device_time,received_at,speed_kph,heading_deg,is_stale,position").limit(2000),
       admin.from("workspace_applications").select("id,applicant_user_id,workspace_type,workspace_name,contact_email,contact_phone,country_code,currency_code,status,review_note,reviewed_at,created_at,organization_id").order("created_at", { ascending: false }).limit(500),
       admin.from("subscription_accounts").select("id,organization_id,plan_code,status,trial_ends_at,current_period_end,created_at").limit(500),
@@ -51,7 +51,7 @@ export async function GET() {
     const orgMap = Object.fromEntries((orgs.data ?? []).map(o => [o.id, o]));
     const memberRows = (memberships.data ?? []).map(m => ({ ...m, user: userMap[m.user_id] ?? null, organization: orgMap[m.organization_id] ?? null }));
     const vehicleRows = (vehicles.data ?? []).map(v => ({ ...v, organization: orgMap[v.organization_id] ?? null }));
-    const deviceRows = (devices.data ?? []).map(d => ({ ...d, organization: orgMap[d.organization_id] ?? null, online: Boolean(d.last_seen_at && Date.now() - new Date(d.last_seen_at).getTime() < 120000) }));
+    const deviceRows = (devices.data ?? []).map(d => ({ ...d, organization: orgMap[d.organization_id] ?? null, online: Boolean(d.active && d.last_seen_at && Date.now() - new Date(d.last_seen_at).getTime() < Math.max(120000, (d.expected_interval_seconds ?? 30) * 3000)) }));
     const subscriptionRows = (subscriptions.data ?? []).map(s => ({ ...s, organization: orgMap[s.organization_id] ?? null }));
     const logRows = (logs.data ?? []).map(l => ({ ...l, actor: userMap[l.actor_user_id] ?? null, organization: orgMap[l.organization_id] ?? null }));
     const supportRows = (support.data ?? []).map(s => ({ ...s, requester: userMap[s.requester_user_id] ?? null }));
