@@ -110,6 +110,24 @@ export async function POST(request: Request) {
       const { error } = await admin.from("organizations").update({ account_status: status, status_reason: reason || null, status_changed_at: new Date().toISOString(), status_changed_by: user.id, updated_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       await audit(admin, user.id, "workspace_status_changed", "organization", id, { status, reason });
+    } else if (action === "invite_member") {
+      const organizationId = String(body.organization_id ?? "");
+      const email = String(body.email ?? "").trim().toLowerCase();
+      const role = String(body.role ?? "driver");
+      if (!organizationId || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !roles.includes(role as typeof roles[number])) {
+        return NextResponse.json({ error: "Choose a workspace, enter a valid email and select a supported role." }, { status: 400 });
+      }
+      if (role === "owner") return NextResponse.json({ error: "Use the workspace owner invitation flow to create a new owner. Existing owners must be assigned through a reviewed transfer." }, { status: 400 });
+      const { data: organization, error: orgError } = await admin.from("organizations").select("id,name,account_status").eq("id", organizationId).maybeSingle();
+      if (orgError || !organization) throw orgError ?? new Error("Workspace not found.");
+      if (organization.account_status !== "active") return NextResponse.json({ error: "Reactivate this workspace before inviting users." }, { status: 409 });
+      const redirect = process.env.NEXT_PUBLIC_APP_URL ? new URL("/auth/callback", process.env.NEXT_PUBLIC_APP_URL).toString() : undefined;
+      const { data: invitation, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, redirect ? { redirectTo: redirect } : undefined);
+      if (inviteError) throw inviteError;
+      if (!invitation.user) throw new Error("Supabase did not return an invited user.");
+      const { error: membershipError } = await admin.from("organization_memberships").upsert({ organization_id: organizationId, user_id: invitation.user.id, role }, { onConflict: "organization_id,user_id" });
+      if (membershipError) throw membershipError;
+      await audit(admin, user.id, "workspace_member_invited", "organization_membership", invitation.user.id, { organization_id: organizationId, workspace_name: organization.name, email, role });
     } else if (action === "membership_role") {
       const id = String(body.id ?? ""), role = String(body.role ?? "");
       if (!id || !roles.includes(role as typeof roles[number])) return NextResponse.json({ error: "Invalid workspace role." }, { status: 400 });
