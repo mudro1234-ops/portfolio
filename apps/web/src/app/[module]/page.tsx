@@ -91,7 +91,7 @@ export default function ModulePage() {
     setBusy(false);
   }
   if(!config)return <main className={`pageWrap theme-${workspaceType}`}><Link href="/" className="backLink">← Dashboard</Link><h1>Module not found</h1></main>;
-  return <main className="pageWrap">
+  return <main className={`pageWrap theme-${workspaceType}`}>
     <header className="pageHeader"><div><BrandMark compact /><Link href="/" className="backLink">← VEKTOR Dashboard</Link><div className="eyebrow">{config.eyebrow}</div><h1>{config.title}</h1><p className="muted">{config.description}</p></div><span className="pill">{loading?"Loading…":rows.length+" records"}</span></header>
     {error&&<p className="errorText" role="alert">{error}</p>}
     {config.fields&&<section className="card"><h2>Add record</h2><form className="dataForm" onSubmit={save}>{config.fields.map(f=><label key={f.name}>{f.label}<input required={f.required} type={f.type??"text"} placeholder={f.placeholder??""} value={values[f.name]??""} onChange={e=>setValues(v=>({...v,[f.name]:e.target.value}))}/></label>)}<button className="primaryButton" disabled={busy||!orgId}>{busy?"Saving…":"Save record"}</button></form><p className="note">Vehicle and driver IDs are shown on their respective management pages. Use those IDs when linking a record.</p></section>}
