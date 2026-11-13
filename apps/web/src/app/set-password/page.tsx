@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { CSSProperties, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import BrandMark from "@/components/brand-mark";
@@ -13,7 +14,7 @@ export default function SetPasswordPage() {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     if (password.length < 10) {
@@ -57,5 +58,5 @@ export default function SetPasswordPage() {
   </main>;
 }
 
-const field: React.CSSProperties = {display:"block",width:"100%",marginTop:7,padding:"12px 13px",borderRadius:9,border:"1px solid #34465f",background:"#0b1322",color:"#edf4ff",outline:"none"};
-const button: React.CSSProperties = {padding:13,border:0,borderRadius:9,background:"#b7e84a",color:"#07131b",fontWeight:800,cursor:"pointer"};
+const field: CSSProperties = {display:"block",width:"100%",marginTop:7,padding:"12px 13px",borderRadius:9,border:"1px solid #34465f",background:"#0b1322",color:"#edf4ff",outline:"none"};
+const button: CSSProperties = {padding:13,border:0,borderRadius:9,background:"#b7e84a",color:"#07131b",fontWeight:800,cursor:"pointer"};
