@@ -156,10 +156,19 @@ export async function POST(request: Request) {
       await audit(admin, user.id, "workspace_member_removed", "organization_membership", id, { target_user_id: target.user_id, role: target.role, reason: body.reason });
     } else if (action === "user_access") {
       const id = String(body.id ?? ""), suspend = Boolean(body.suspend);
+      const reason = String(body.reason ?? "").trim();
       if (!id || id === user.id) return NextResponse.json({ error: "You cannot suspend your own account." }, { status: 400 });
+      if (suspend && reason.length < 5) return NextResponse.json({ error: "Provide a reason of at least 5 characters." }, { status: 400 });
+      if (suspend) {
+        const { count, error: countError } = await admin.from("system_admins").select("user_id", { count: "exact", head: true });
+        if (countError) throw countError;
+        const { data: targetAdmin, error: adminReadError } = await admin.from("system_admins").select("user_id").eq("user_id", id).maybeSingle();
+        if (adminReadError) throw adminReadError;
+        if (targetAdmin && (count ?? 0) <= 1) return NextResponse.json({ error: "The last System Administrator account cannot be suspended." }, { status: 409 });
+      }
       const { error } = await admin.auth.admin.updateUserById(id, { ban_duration: suspend ? "876000h" : "none" });
       if (error) throw error;
-      await audit(admin, user.id, suspend ? "user_access_suspended" : "user_access_reactivated", "auth_user", id, { reason: String(body.reason ?? "") });
+      await audit(admin, user.id, suspend ? "user_access_suspended" : "user_access_reactivated", "auth_user", id, { reason });
     } else if (action === "send_recovery") {
       const id = String(body.id ?? "");
       const { data: target, error: targetError } = await admin.auth.admin.getUserById(id);
