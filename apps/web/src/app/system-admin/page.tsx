@@ -26,6 +26,14 @@ export default function SystemAdminPage() {
   const [busyId, setBusyId] = useState("");
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [workspaceName, setWorkspaceName] = useState("");
+  const [workspaceType, setWorkspaceType] = useState<"company" | "individual">("company");
+  const [countryCode, setCountryCode] = useState("ZW");
+  const [currencyCode, setCurrencyCode] = useState("USD");
+  const [contactPhone, setContactPhone] = useState("");
+  const [creating, setCreating] = useState(false);
 
   const loadApplications = useCallback(async () => {
     const supabase = createClient();
@@ -79,6 +87,38 @@ export default function SystemAdminPage() {
     }
   }
 
+  async function createWorkspace(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setCreating(true);
+    setError("");
+    setSuccess("");
+    try {
+      const response = await fetch("/api/system-admin/workspaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: inviteEmail,
+          workspaceName,
+          workspaceType,
+          countryCode,
+          currencyCode,
+          phone: contactPhone,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Workspace creation failed.");
+      setSuccess(`Created ${result.workspace.name}. An invitation was sent to ${result.email}.`);
+      setInviteEmail("");
+      setWorkspaceName("");
+      setContactPhone("");
+      await loadApplications();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Workspace creation failed.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
   if (!checked) return <main className="pageWrap"><p className="muted">Checking administrator access…</p></main>;
   if (!authorized) return <main className="formPage"><section className="formCard">
     <BrandMark /><div className="eyebrow">RESTRICTED AREA</div><h1>System administrator access</h1>
@@ -92,6 +132,18 @@ export default function SystemAdminPage() {
     <Link className="backLink" href="/">← Back to workspace</Link>
     <header className="pageHeader"><div><div className="eyebrow">VEKTOR · MASTER CONTROL</div><h1>System administration</h1><p className="muted">Review access requests and provision isolated company or individual workspaces.</p></div><span className="pill">{pending.length} pending requests</span></header>
     {error && <p className="errorText" role="alert">{error}</p>}
+    {success && <p className="notice" role="status">{success}</p>}
+    <section className="card tableCard"><h2>Create a workspace account</h2><p className="muted">Create a private company or individual workspace and send its owner a secure invitation to set up their account.</p>
+      <form onSubmit={createWorkspace} style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:14,marginTop:18}}>
+        <label>Workspace type<select value={workspaceType} onChange={e=>setWorkspaceType(e.target.value as "company" | "individual")}><option value="company">Company fleet</option><option value="individual">Individual vehicle owner</option></select></label>
+        <label>Workspace name<input required minLength={2} maxLength={120} value={workspaceName} onChange={e=>setWorkspaceName(e.target.value)} placeholder={workspaceType==="company"?"Company name":"Owner or personal workspace"}/></label>
+        <label>Owner email<input required type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="owner@example.com"/></label>
+        <label>Phone (optional)<input value={contactPhone} onChange={e=>setContactPhone(e.target.value)} placeholder="+263…"/></label>
+        <label>Country code<input required minLength={2} maxLength={2} value={countryCode} onChange={e=>setCountryCode(e.target.value.toUpperCase())}/></label>
+        <label>Currency code<input required minLength={3} maxLength={3} value={currencyCode} onChange={e=>setCurrencyCode(e.target.value.toUpperCase())}/></label>
+        <div style={{gridColumn:"1 / -1"}}><button className="primaryButton" disabled={creating}>{creating?"Creating and sending invitation…":"Create workspace & invite owner"}</button></div>
+      </form>
+    </section>
     <section className="grid">
       <div className="card"><div className="metric-label">All applications</div><div className="metric">{applications.length}</div><div className="note">Submitted access requests</div></div>
       <div className="card"><div className="metric-label">Pending review</div><div className="metric">{pending.length}</div><div className="note">Awaiting a decision</div></div>
