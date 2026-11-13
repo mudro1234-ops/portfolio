@@ -120,8 +120,8 @@ export default function SystemAdminPage() {
     }
   }
 
-  if (!checked) return <main className="pageWrap"><p className="muted">Checking administrator access…</p></main>;
-  if (!authorized) return <main className="formPage"><section className="formCard">
+  if (!checked) return <main className="pageWrap theme-admin"><p className="muted">Checking administrator access…</p></main>;
+  if (!authorized) return <main className="formPage theme-admin"><section className="formCard">
     <BrandMark /><div className="eyebrow">RESTRICTED AREA</div><h1>System administrator access</h1>
     <p className="muted">This portal is reserved for accounts explicitly registered in VEKTOR's system_admins table. Company administrator access does not grant platform-wide privileges.</p>
     <p className="notice">No system administrator access is assigned to this account. The first platform administrator must be provisioned manually by the project owner after verifying the correct authenticated user.</p>
@@ -129,7 +129,7 @@ export default function SystemAdminPage() {
   </section></main>;
 
   const pending = applications.filter(item => item.status === "pending");
-  return <main className="pageWrap">
+  return <main className="pageWrap theme-admin">
     <Link className="backLink" href="/">← Back to workspace</Link>
     <header className="pageHeader"><div><div className="eyebrow">VEKTOR · MASTER CONTROL</div><h1>System administration</h1><p className="muted">Review access requests and provision isolated company or individual workspaces.</p></div><span className="pill">{pending.length} pending requests</span></header>
     {error && <p className="errorText" role="alert">{error}</p>}
