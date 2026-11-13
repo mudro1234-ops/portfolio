@@ -33,6 +33,7 @@ export default function ModulePage() {
   const config = modules[key];
   const supabase = useMemo(() => createClient(), []);
   const [orgId,setOrgId] = useState("");
+  const [workspaceType,setWorkspaceType] = useState<"company"|"individual">("company");
   const [rows,setRows] = useState<Row[]>([]);
   const [loading,setLoading] = useState(true);
   const [busy,setBusy] = useState(false);
@@ -51,6 +52,9 @@ export default function ModulePage() {
     const {data:membership,error:memberError} = await supabase.from("organization_memberships").select("organization_id").eq("user_id",user.id).limit(1).maybeSingle();
     if(memberError || !membership){setError(memberError?.message || "Create a company workspace first.");setLoading(false);return;}
     setOrgId(membership.organization_id);
+    const {data:organization}=await supabase.from("organizations").select("workspace_type").eq("id",membership.organization_id).maybeSingle();
+    const kind=organization?.workspace_type==="individual"?"individual":"company";setWorkspaceType(kind);
+    if(kind==="individual" && ["team","assignments","consent"].includes(key)){setError("This page is part of company fleet management. Individual owners have a separate, private vehicle workspace.");setLoading(false);return;}
     if(config?.table){
       const {data,error:queryError} = await supabase.from(config.table).select("*").eq("organization_id",membership.organization_id).order(config.orderBy ?? "created_at",{ascending:false}).limit(100);
       if(queryError)setError(queryError.message); else setRows((data ?? []) as Row[]);
@@ -86,7 +90,7 @@ export default function ModulePage() {
     catch(e){setError(e instanceof Error?e.message:"Assistant unavailable");}
     setBusy(false);
   }
-  if(!config)return <main className="pageWrap"><Link href="/" className="backLink">← Dashboard</Link><h1>Module not found</h1></main>;
+  if(!config)return <main className={`pageWrap theme-${workspaceType}`}><Link href="/" className="backLink">← Dashboard</Link><h1>Module not found</h1></main>;
   return <main className="pageWrap">
     <header className="pageHeader"><div><BrandMark compact /><Link href="/" className="backLink">← VEKTOR Dashboard</Link><div className="eyebrow">{config.eyebrow}</div><h1>{config.title}</h1><p className="muted">{config.description}</p></div><span className="pill">{loading?"Loading…":rows.length+" records"}</span></header>
     {error&&<p className="errorText" role="alert">{error}</p>}
