@@ -164,7 +164,7 @@ export async function POST(request: Request) {
       const id = String(body.id ?? "");
       const { data: target, error: targetError } = await admin.auth.admin.getUserById(id);
       if (targetError || !target.user?.email) throw targetError ?? new Error("User email is unavailable.");
-      const redirect = process.env.NEXT_PUBLIC_APP_URL ? new URL("/auth/callback?next=%2Freset-password", process.env.NEXT_PUBLIC_APP_URL).toString() : undefined;
+      const redirect = process.env.NEXT_PUBLIC_APP_URL ? new URL("/auth/callback?next=%2Fset-password", process.env.NEXT_PUBLIC_APP_URL).toString() : undefined;
       const { error } = await admin.auth.resetPasswordForEmail(target.user.email, redirect ? { redirectTo: redirect } : undefined);
       if (error) throw error;
       await audit(admin, user.id, "account_recovery_email_sent", "auth_user", id, { email: target.user.email });
