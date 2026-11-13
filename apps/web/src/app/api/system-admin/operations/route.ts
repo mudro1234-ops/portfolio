@@ -180,6 +180,8 @@ export async function POST(request: Request) {
     } else if (action === "setting_update") {
       const key = String(body.key ?? "").trim(), value = body.value;
       if (!/^[a-z][a-z0-9_.-]{1,100}$/.test(key) || value === undefined) return NextResponse.json({ error: "Invalid setting key or value." }, { status: 400 });
+      if (/(secret|token|api[_-]?key|password|credential|private[_-]?key)/i.test(key)) return NextResponse.json({ error: "Credentials must be stored only in Vercel server-side environment variables, never in platform settings." }, { status: 400 });
+      if (JSON.stringify(value).length > 12000) return NextResponse.json({ error: "Setting value is too large." }, { status: 400 });
       const { error } = await admin.from("platform_settings").upsert({ key, value, description: String(body.description ?? ""), updated_by: user.id, updated_at: new Date().toISOString() }, { onConflict: "key" });
       if (error) throw error;
       await audit(admin, user.id, "platform_setting_updated", "platform_setting", key);
