@@ -26,8 +26,8 @@ export default function Home() {
       if (authError || !user) { router.replace("/login"); return; }
       if (!active) return;
       setEmail(user.email ?? "");
-      const { data: adminAccess } = await supabase.rpc("is_system_admin");
-      if (active) setIsSystemAdmin(adminAccess === true);
+      const { data: adminRecord } = await supabase.from("system_admins").select("user_id").eq("user_id", user.id).maybeSingle();
+      if (active) setIsSystemAdmin(Boolean(adminRecord));
       const { data: memberships, error: memberError } = await supabase
         .from("organization_memberships")
         .select("organization_id, role")
