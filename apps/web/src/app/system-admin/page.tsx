@@ -57,7 +57,7 @@ export default function SystemAdminPage() {
     try {
       const response = await fetch("/api/system-admin/operations", { cache: "no-store" });
       const result = await response.json();
-      if (response.status === 401) { window.location.assign("/login?next=/system-admin"); return; }
+      if (response.status === 401) { window.location.assign("/system-admin/login"); return; }
       if (response.status === 403) { setError("This account does not have System Administrator privileges."); setLoading(false); return; }
       if (!response.ok) throw new Error(result.error || "Could not load platform data.");
       setData(result);
