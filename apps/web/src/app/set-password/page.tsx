@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import BrandMark from "@/components/brand-mark";
 
-export default function SetPasswordPage() {
+function SetPasswordForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [password, setPassword] = useState("");
@@ -50,4 +50,8 @@ export default function SetPasswordPage() {
     {error && <p role="alert" className="errorText">{error}</p>}
     {done && <p role="status" className="muted">Your password has been changed. Opening your workspace…</p>}
   </section></main>;
+}
+
+export default function SetPasswordPage() {
+  return <Suspense fallback={<main className="formPage"><p className="muted">Loading account security…</p></main>}><SetPasswordForm /></Suspense>;
 }
