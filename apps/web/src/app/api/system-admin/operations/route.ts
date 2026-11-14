@@ -21,7 +21,7 @@ async function getContext() {
   return { user, session, admin: createAdminClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } }) } as const;
 }
 
-async function audit(admin: ReturnType<typeof createAdminClient>, actor: string, action: string, type: string, id: string | null, metadata: Record<string, unknown> = {}) {
+async function audit(admin: any, actor: string, action: string, type: string, id: string | null, metadata: Record<string, unknown> = {}) {
   // This admin client is used only on the server. The generated database types omit
   // the audit_logs table, so cast the client before calling from() to avoid the
   // Supabase never[] insert inference.
