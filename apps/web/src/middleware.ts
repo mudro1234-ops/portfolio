@@ -34,8 +34,9 @@ export async function middleware(request: NextRequest) {
 
   if (!user && !isPublicPath) {
     const target = request.nextUrl.clone();
-    target.pathname = "/login";
-    target.searchParams.set("next", pathname);
+    const isAdminPath = pathname === "/system-admin" || pathname.startsWith("/system-admin/");
+    target.pathname = isAdminPath ? "/system-admin/login" : "/login";
+    if (!isAdminPath) target.searchParams.set("next", pathname);
     return NextResponse.redirect(target);
   }
 
