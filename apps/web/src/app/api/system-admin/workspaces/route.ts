@@ -6,7 +6,8 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 const validCode = /^[A-Z]{2}$/;
 const validCurrency = /^[A-Z]{3}$/;
-const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[char] as string));
+const htmlEscapes: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+const escapeHtml = (value: string) => value.replace(/[&<>"']/g, char => htmlEscapes[char]);
 
 export async function POST(request: Request) {
   let invitedUserId: string | null = null;
