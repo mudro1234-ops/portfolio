@@ -22,9 +22,11 @@ async function getContext() {
 }
 
 async function audit(admin: ReturnType<typeof createAdminClient>, actor: string, action: string, type: string, id: string | null, metadata: Record<string, unknown> = {}) {
-  // The generated Supabase client types do not currently include the audit_logs Insert shape.
-  // Keep this narrow cast server-side until database.types.ts is regenerated from the live schema.
-  const { error } = await admin.from("audit_logs" as any).insert({ actor_user_id: actor, action, resource_type: type, resource_id: id, metadata });
+  // This admin client is used only on the server. The generated database types omit
+  // the audit_logs table, so cast the client before calling from() to avoid the
+  // Supabase never[] insert inference.
+  const auditAdmin = admin as any;
+  const { error } = await auditAdmin.from("audit_logs").insert({ actor_user_id: actor, action, resource_type: type, resource_id: id, metadata });
   if (error) throw error;
 }
 
