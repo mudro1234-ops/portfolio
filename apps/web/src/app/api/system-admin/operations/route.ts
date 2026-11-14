@@ -85,7 +85,7 @@ export async function GET() {
         gemini: { configured: env("GEMINI_API_KEY") },
         groq: { configured: env("GROQ_API_KEY") },
         openrouter: { configured: env("OPENROUTER_API_KEY") },
-        email: { configured: Boolean(process.env.RESEND_API_KEY || process.env.SMTP_HOST) },
+        email: { configured: Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL) },
       },
     });
   } catch (error) {
