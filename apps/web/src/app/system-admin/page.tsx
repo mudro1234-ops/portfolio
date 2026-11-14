@@ -86,7 +86,7 @@ export default function SystemAdminPage() {
       const response = await fetch("/api/system-admin/workspaces", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: inviteEmail, workspaceName, workspaceType: workspaceTypeCreate, countryCode, currencyCode, phone: contactPhone }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Workspace creation failed.");
-      setNotice("Workspace created and invitation sent to " + result.email + ".");
+      setNotice("Workspace created and credentials emailed to " + result.email + ". Workspace link: " + result.workspaceUrl);
       setInviteEmail(""); setWorkspaceName(""); setContactPhone(""); await load();
     } catch (e) { setError(e instanceof Error ? e.message : "Workspace creation failed."); }
     finally { setBusy(false); }
