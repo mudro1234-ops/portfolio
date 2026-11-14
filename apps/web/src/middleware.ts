@@ -18,13 +18,7 @@ export async function middleware(request: NextRequest) {
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll: () => request.cookies.getAll(),
-      setAll(
-        cookiesToSet: Array<{
-          name: string;
-          value: string;
-          options?: Parameters<typeof response.cookies.set>[2];
-        }>
-      ) {
+      setAll(cookiesToSet: Array<{ name: string; value: string; options?: Parameters<typeof response.cookies.set>[2] }>) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
@@ -33,19 +27,34 @@ export async function middleware(request: NextRequest) {
   });
 
   const { data: { user } } = await supabase.auth.getUser();
-  const isPublicPath = pathname === "/login" || pathname.startsWith("/auth/callback") || pathname === "/setup-required";
+  const isPublicPath = pathname === "/login"
+    || pathname === "/system-admin/login"
+    || pathname.startsWith("/auth/callback")
+    || pathname === "/setup-required";
+
   if (!user && !isPublicPath) {
     const target = request.nextUrl.clone();
-    target.pathname = "/login";
-    target.searchParams.set("next", pathname);
+    const isAdminPath = pathname === "/system-admin" || pathname.startsWith("/system-admin/");
+    target.pathname = isAdminPath ? "/system-admin/login" : "/login";
+    if (!isAdminPath) target.searchParams.set("next", pathname);
     return NextResponse.redirect(target);
   }
+
+  if (user && user.app_metadata?.must_change_password && pathname !== "/set-password" && !pathname.startsWith("/api/auth/complete-password") && !pathname.startsWith("/auth/callback")) {
+    const target = request.nextUrl.clone();
+    target.pathname = "/set-password";
+    target.search = "";
+    if (pathname !== "/system-admin/login" && pathname !== "/login") target.searchParams.set("next", pathname);
+    return NextResponse.redirect(target);
+  }
+
   if (user && pathname === "/login") {
     const target = request.nextUrl.clone();
     target.pathname = "/";
     target.search = "";
     return NextResponse.redirect(target);
   }
+
   return response;
 }
 
